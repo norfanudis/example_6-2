@@ -3,6 +3,7 @@
 #include "mbed.h"
 #include "arm_book_lib.h"
 #include "display.h"
+#include "pc_serial_com.h"
 
 //=====[Declaration of private defines]========================================
 
@@ -58,16 +59,16 @@
 
 //=====[Declaration and initialization of public global objects]===============
 
-DigitalOut displayD0( D0 );
-DigitalOut displayD1( D1 );
-DigitalOut displayD2( D2 );
-DigitalOut displayD3( D3 );
-DigitalOut displayD4( D4 );
-DigitalOut displayD5( D5 );
-DigitalOut displayD6( D6 );
-DigitalOut displayD7( D7 );
-DigitalOut displayRs( D8 );
-DigitalOut displayEn( D9 );
+DigitalOut displayD0( D0 ); //Pin D0 en placa nucleo
+DigitalOut displayD1( D1 ); //Pin D1 en placa nucleo
+DigitalOut displayD2( D2 ); //Pin D2 en placa nucleo
+DigitalOut displayD3( D3 ); //Pin D3 en placa nucleo
+DigitalOut displayD4( D4 ); //Pin D4 en placa nucleo
+DigitalOut displayD5( D5 ); //Pin D5 en placa nucleo
+DigitalOut displayD6( D6 ); //Pin D6 en placa nucleo
+DigitalOut displayD7( D7 ); //Pin D7 en placa nucleo
+DigitalOut displayRs( D8 ); //Pin D8 en placa nucleo
+DigitalOut displayEn( D9 ); //Pin D9 en placa nucleo
 
 //=====[Declaration of external public global variables]=======================
 
@@ -86,7 +87,7 @@ static void displayCodeWrite( bool type, uint8_t dataBus );
 
 //=====[Implementations of public functions]===================================
 
-void displayInit( displayConnection_t connection )
+void displayInit( displayConnection_t connection )  //Selecciona si es comunicacion con 4 u 8 bits
 {
     display.connection = connection;
     
@@ -163,6 +164,8 @@ void displayInit( displayConnection_t connection )
 
 void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY )
 {    
+    char str[100];
+    //int stringLength;
     switch( charPositionY ) {
         case 0:
             displayCodeWrite( DISPLAY_RS_INSTRUCTION, 
@@ -196,14 +199,20 @@ void displayCharPositionWrite( uint8_t charPositionX, uint8_t charPositionY )
             delay( 1 );         
         break;
     }
+    sprintf ( str, "Fila: %03d, Columna: %03d \n",charPositionY,charPositionX );    //Imprime por consola la coluna y fila a la que va a escribir
+    pcSerialComStringWrite(str);
 }
 
 
 void displayStringWrite( const char * str )
 {
+    char strSerial[100];                             //Imprime por consola lo que va a mostrar el display
+    sprintf(strSerial,"%s \n",str);
+    pcSerialComStringWrite(strSerial);
     while (*str) {
         displayCodeWrite(DISPLAY_RS_DATA, *str++);
     }
+    
 }
 
 //=====[Implementations of private functions]==================================
@@ -212,7 +221,7 @@ static void displayCodeWrite( bool type, uint8_t dataBus )
 {
     if ( type == DISPLAY_RS_INSTRUCTION )
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_INSTRUCTION);
-        else
+    else
         displayPinWrite( DISPLAY_PIN_RS, DISPLAY_RS_DATA);
     displayPinWrite( DISPLAY_PIN_RW, DISPLAY_RW_WRITE );
     displayDataBusWrite( dataBus );
