@@ -87,6 +87,42 @@ static void displayCodeWrite( bool type, uint8_t dataBus );
 
 //=====[Implementations of public functions]===================================
 
+/*
+9.c
+------------------Arbol de displayInit en display.cpp--------------------
+- displayInit(displayConnection_t connection) en display.cpp
+  - Llama a:
+    - delay(int milliseconds) en arm_book_lib.h 
+    - displayCodeWrite(bool type, uint8_t dataBus)
+      - Llama a:
+        - displayPinWrite(uint8_t pinName, int value)
+        - displayDataBusWrite(uint8_t dataBus)
+  - Dependencias:
+    - mbed.h
+    - arm_book_lib.h 
+
+- delay(int milliseconds) en arm_book_lib.h
+  - Llama a:
+    - thread_sleep_for(ms) en mbed.h
+  - Dependencias:
+    - mbed.h 
+
+-thread_sleep_for(ms) en mbed.h
+  - Llama a:
+    - do_timed_sleep_absolute (default que utiliza el clock del sistema operativo)
+    - sleep_until ( si se define el flag MBED_CONF_RTOS_PRESENT se utiliza el clock del thread del kernel)
+  - Dependencias:
+    - platform/internal/mbed_os_timer.h 
+    - "rtos/Kernel.h" y "rtos/ThisThread.h" (MBED_CONF_RTOS_PRESENT si está definida)
+
+- displayCodeWrite(bool type, uint8_t dataBus) en display.cpp
+  - Llama a:
+    - displayPinWrite(uint8_t pinName, int value)
+    - displayDataBusWrite(uint8_t dataBus)
+  - I2C.h
+
+*/
+
 void displayInit( displayConnection_t connection )  //Selecciona si es comunicacion con 4 u 8 bits
 {
     display.connection = connection;
